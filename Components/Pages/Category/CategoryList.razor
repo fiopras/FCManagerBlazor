@@ -1,0 +1,37 @@
+﻿@page "/category"
+
+@if (IsProcessing)
+{
+	<div class="position-absolute w-75 h-75 d-flex flex-column align-items-center bg-white justify-content-center">
+		<img src="/images/loading-whale-no-bg.gif" alt="loading" />
+	</div>
+} else
+{
+	<div class="card shadow border-0 mt-4">
+		<div class="card-header bg-black bg-gradient ml-0 py-3">
+			<div class="row">
+				<div class="col-12 text-center">
+					<h2>Category List</h2>
+				</div>
+			</div>
+		</div>
+	</div>
+}
+
+
+@code {
+	public bool IsProcessing { get; set; } = false;
+
+	protected override async Task OnInitializedAsync()
+	{
+		IsProcessing = true;
+		await Task.Delay(2400);
+		LoadCategory();
+		IsProcessing = false;
+	}
+
+	private void LoadCategory()
+	{
+		
+	}
+}
