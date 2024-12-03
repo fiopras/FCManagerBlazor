@@ -1,5 +1,8 @@
 ﻿@page "/category"
 @inject ICategoryRepository _categoryRepository
+@inject IJSRuntime _JS
+
+<FCManagerBlazor.Components.Shared.Modal OnModalConfirmation="ConfirmationDeleteClick"></FCManagerBlazor.Components.Shared.Modal>
 
 @if (IsProcessing)
 {
@@ -44,9 +47,9 @@
 									<a href="@($"category/update/{obj.Id}")" class="btn btn-lg btn-primary">
 										<i class="bi bi-pencil-fill"></i> Edit
 									</a>
-									<a class="btn btn-lg btn-danger">
+									<button class="btn btn-lg btn-danger" @onclick="() => HandleDelete(obj.Id)">
 										<i class="bi bi-trash3-fill"></i> Delete
-									</a>
+									</button>
 								</td>
 							</tr>
 						}
@@ -61,6 +64,7 @@
 @code {
 	private bool IsProcessing { get; set; } = true;
 	private IEnumerable<Category> Categories { get; set; } = new List<Category>();
+	private int DeleteCategoryId { get; set; } = 0;
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -82,4 +86,31 @@
 	{
 		Categories = await _categoryRepository.GetAllAsync();
 	}
+
+	private void HandleDelete(int Id)
+	{
+		DeleteCategoryId = Id;
+		_JS.InvokeVoidAsync("ShowConfirmationModal");
+	}
+
+	private async Task ConfirmationDeleteClick(bool isConfirmed)
+	{
+		IsProcessing = true;
+		await _JS.InvokeVoidAsync("HideConfirmationModal");
+		if(isConfirmed && DeleteCategoryId !=0)
+		{
+			var result = await _categoryRepository.DeleteAsync(DeleteCategoryId);
+			if(result)
+				_JS.ToastrSuccess("Category Delete Successfully");
+			else
+				_JS.ToastrError("Category Delete Failed");
+
+			await LoadCategory();
+		}
+		DeleteCategoryId = 0;
+		IsProcessing = false;
+
+	}
+
+
 }
